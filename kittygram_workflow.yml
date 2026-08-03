@@ -2,8 +2,6 @@ name: Main Kittygram workflow
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   tests:
@@ -44,6 +42,7 @@ jobs:
     name: Сборка и публикация образа бэкенда
     runs-on: ubuntu-latest
     needs: tests
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Клонирование репозитория
         uses: actions/checkout@v3
@@ -59,7 +58,7 @@ jobs:
         with:
           context: ./backend/
           push: true
-          tags: mermaid0077/kittygram_backend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_backend:latest
 
   frontend_tests:
     runs-on: ubuntu-latest
@@ -82,6 +81,7 @@ jobs:
     name: Сборка и публикация образа фронтенда
     runs-on: ubuntu-latest
     needs: frontend_tests
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Клонирование репозитория
         uses: actions/checkout@v3
@@ -97,11 +97,12 @@ jobs:
         with:
           context: ./frontend/
           push: true
-          tags: mermaid0077/kittygram_frontend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_frontend:latest
 
   build_and_push_gateway:
     name: Сборка и публикация образа gateway
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Клонирование репозитория
         uses: actions/checkout@v3
@@ -117,7 +118,7 @@ jobs:
         with:
           context: ./nginx/
           push: true
-          tags: mermaid0077/kittygram_gateway:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/kittygram_gateway:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -125,6 +126,7 @@ jobs:
       - build_and_push_backend
       - build_and_push_frontend
       - build_and_push_gateway
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Клонирование репозитория
         uses: actions/checkout@v3
@@ -154,6 +156,7 @@ jobs:
   send_message:
     runs-on: ubuntu-latest
     needs: deploy
+    if: github.ref == 'refs/heads/main'
     steps:
     - name: Отправка сообщения в Telegram
       uses: appleboy/telegram-action@master

@@ -29,6 +29,7 @@ services:
     image: mermaid0077/kittygram_gateway
     depends_on:
       - backend
+      - frontend
     ports:
       - 9000:80
     volumes:
